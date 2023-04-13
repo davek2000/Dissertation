@@ -285,13 +285,13 @@ def random_forest(n_estimators,max_depth,max_features):
     print(reg_briar)
     return reg_briar
 
-def neural_network(learning_rate,batch_size,epochs):
+def neural_network(learning_rate,batch_size,epochs,dropout_rate):
     from keras.models import Sequential
     from keras.layers import Dense
     from keras.layers import Dropout
     model = Sequential()
     model.add(Dense(80, activation='relu',input_dim=366))
-    model.add(Dropout(0.4))
+    model.add(Dropout(dropout_rate))
     #model.add(Dense(180, activation='relu'))
     #model.add(Dense(180, input_dim=366, activation='relu'))
     #model.add(Dense(366, activation='relu'))
@@ -471,22 +471,42 @@ def test_neural_network():
     # plt.title("Neural Network Hyper-parameter tuning: batch_size")
     # plt.show()
 
+    # Hyper-paramater: epoch_size
+    # brier_score_list = []
+    # nn_timing=  []
+
+    # epoch_sizes = [1,5,10,20,30,40,50]
+    # for epoch in epoch_sizes:
+    #     start = time.time()
+    #     brier_score_list.append(neural_network(learning_rate=0.001,batch_size=64, epochs=epoch))
+    #     stop = time.time()
+    #     nn_timing.append((stop-start))
+
+    # plt.plot(range(len(epoch_sizes)),nn_timing)
+    # #plt.xticks(range(len(max_features)),['sqrt','log2','None'] ); #plt.yticks([0.5,0.4,0.3,0.2,0.1,0])
+    # plt.xticks(range(len(epoch_sizes)),epoch_sizes)
+    # #plt.yticks([0.3,0.25,0.2])
+    # plt.xlabel("epoch_value"); plt.ylabel("Time (seconds)")
+    # plt.title("Neural Network Hyper-parameter tuning: epoch_value")
+    # plt.show()
+
+    # Hyper-parameter: Dropout-rate
     brier_score_list = []
     nn_timing=  []
 
-    epoch_sizes = [1,5,10,20,30,40,50]
-    for epoch in epoch_sizes:
+    dropout_rate = [0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8]
+    for dropout in dropout_rate:
         start = time.time()
-        brier_score_list.append(neural_network(learning_rate=0.001,batch_size=64, epochs=epoch))
+        brier_score_list.append(neural_network(learning_rate=0.001,batch_size=64, epochs=20, dropout_rate=dropout))
         stop = time.time()
         nn_timing.append((stop-start))
 
-    plt.plot(range(len(epoch_sizes)),nn_timing)
+    plt.plot(range(len(dropout_rate)),nn_timing)
     #plt.xticks(range(len(max_features)),['sqrt','log2','None'] ); #plt.yticks([0.5,0.4,0.3,0.2,0.1,0])
-    plt.xticks(range(len(epoch_sizes)),epoch_sizes)
+    plt.xticks(range(len(dropout_rate)),dropout_rate)
     #plt.yticks([0.3,0.25,0.2])
-    plt.xlabel("epoch_value"); plt.ylabel("Time (seconds)")
-    plt.title("Neural Network Hyper-parameter tuning: epoch_value")
+    plt.xlabel("dropout_rate"); plt.ylabel("Time (seconds)")
+    plt.title("Neural Network Hyper-parameter tuning: dropout_rate")
     plt.show()
     ###########################################################################################################
 
