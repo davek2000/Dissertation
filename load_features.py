@@ -285,7 +285,7 @@ def random_forest(n_estimators,max_depth,max_features):
     print(reg_briar)
     return reg_briar
 
-def neural_network(learning_rate):
+def neural_network(learning_rate,batch_size,epochs):
     from keras.models import Sequential
     from keras.layers import Dense
     from keras.layers import Dropout
@@ -304,8 +304,8 @@ def neural_network(learning_rate):
                   loss_weights=class_weights)
 
 
-    model.fit(train_x,train_y,epochs=20,batch_size=16,verbose=0)
-
+    #model.fit(train_x,train_y,epochs=20,batch_size=16,verbose=0)
+    model.fit(train_x,train_y,epochs=epochs,batch_size=batch_size,verbose=0)
     # print("Evaluate on test data")
     # results = model.evaluate(test_x, test_y, batch_size=128)
     # print("test loss, test acc:", results)
@@ -433,21 +433,60 @@ def test_neural_network():
     print("Neural Network Model:")
     print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
 
-    # Hyper-parameter: learning_rate 
-    learning_rates = [0.01,0.001,0.0001,0.00001]
+    # # Hyper-parameter: learning_rate 
+    # learning_rates = [0.01,0.001,0.0001,0.00001]
+    # brier_score_list = []
+    # nn_timing=  []
+    # for lr in learning_rates:
+    #     start = time.time()
+    #     brier_score_list.append(neural_network(learning_rate=lr))
+    #     stop = time.time()
+    #     nn_timing.append((stop-start))
+
+    # # #plt.plot(max_depth_values,rf_timings,label='Brier Score WRT max_depth')
+    # plt.plot(range(len(learning_rates)),nn_timing)
+    # #plt.xticks(range(len(max_features)),['sqrt','log2','None'] ); #plt.yticks([0.5,0.4,0.3,0.2,0.1,0])
+    # plt.xticks(range(len(learning_rates)),["0.01","0.001","0.0001","0.00001"])
+    # plt.xlabel("learning_rate"); plt.ylabel("Time (seconds)")
+    # plt.title("Neural Network Hyper-parameter tuning: learning_rate")
+    # plt.show()
+
+    # Hyper-parameter: batch_size
+
+    # brier_score_list = []
+    # nn_timing=  []
+
+    # batch_sizes = [16,32,64,128]
+    # for batch in batch_sizes:
+    #     start = time.time()
+    #     brier_score_list.append(neural_network(learning_rate=0.001,batch_size=batch))
+    #     stop = time.time()
+    #     nn_timing.append((stop-start))
+
+    # plt.plot(range(len(batch_sizes)),brier_score_list)
+    # #plt.xticks(range(len(max_features)),['sqrt','log2','None'] ); #plt.yticks([0.5,0.4,0.3,0.2,0.1,0])
+    # plt.xticks(range(len(batch_sizes)),batch_sizes)
+    # plt.yticks([0.3,0.25,0.2])
+    # plt.xlabel("batch_size"); plt.ylabel("Brier Score")
+    # plt.title("Neural Network Hyper-parameter tuning: batch_size")
+    # plt.show()
+
     brier_score_list = []
     nn_timing=  []
-    for lr in learning_rates:
+
+    epoch_sizes = [1,5,10,20,30,40,50]
+    for epoch in epoch_sizes:
         start = time.time()
-        brier_score_list.append(neural_network(learning_rate=lr))
+        brier_score_list.append(neural_network(learning_rate=0.001,batch_size=64, epochs=epoch))
         stop = time.time()
         nn_timing.append((stop-start))
 
-    # #plt.plot(max_depth_values,rf_timings,label='Brier Score WRT max_depth')
-    plt.plot(learning_rates,brier_score_list)
-    # plt.xticks(range(len(max_features)),['sqrt','log2','None'] ); #plt.yticks([0.5,0.4,0.3,0.2,0.1,0])
-    plt.xlabel("learning_rate"); plt.ylabel("Brier Score")
-    plt.title("Neural Network Hyper-parameter tuning: learning_rate")
+    plt.plot(range(len(epoch_sizes)),nn_timing)
+    #plt.xticks(range(len(max_features)),['sqrt','log2','None'] ); #plt.yticks([0.5,0.4,0.3,0.2,0.1,0])
+    plt.xticks(range(len(epoch_sizes)),epoch_sizes)
+    #plt.yticks([0.3,0.25,0.2])
+    plt.xlabel("epoch_value"); plt.ylabel("Time (seconds)")
+    plt.title("Neural Network Hyper-parameter tuning: epoch_value")
     plt.show()
     ###########################################################################################################
 
