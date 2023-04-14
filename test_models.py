@@ -103,15 +103,15 @@ df = pd.DataFrame({
 
 df.set_index('Activity', inplace=True)
 # reset colour palette
-# current_palette = cycle(sns.color_palette())
-# df.plot(
-#     kind='bar',
-#     width=1.0,
-#     subplots=True,
-#     color=[next(current_palette), next(current_palette)], 
-#     edgecolor='white',
-#     linewidth=1
-# )
+current_palette = cycle(sns.color_palette())
+df.plot(
+    kind='bar',
+    width=1.0,
+    subplots=True,
+    color=[next(current_palette), next(current_palette)], 
+    edgecolor='white',
+    linewidth=1
+)
 
 #plt.show()
 
@@ -123,8 +123,11 @@ num_lines = 0
 
 
 def brier_score(given, predicted, weight_vector): 
+        a = given-predicted
+        b = np.power(a,2.0)
+        c = b.dot(weight_vector)
+        print(c)
         return np.power(given - predicted, 2.0).dot(weight_vector).mean()
-
 
 def baseline():
      # For comparison to the KNN model, test the prior class distribution  
@@ -510,4 +513,12 @@ def test_neural_network():
     plt.show()
     ###########################################################################################################
 
-test_neural_network()
+#test_neural_network()
+# given=[0.2,0.5,0.2]
+given = np.array([0.2,0.5,0.2])
+# predicted = [0.1,0.5,0.1]
+predicted = np.array([0.1,0.5,0.1])
+# weights = [1,1,1]
+weights = [1,1,1]
+print(brier_score(given,predicted,weights))
+baseline()

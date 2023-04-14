@@ -63,11 +63,23 @@ def plot_true_outputs():
     #print(sorted_dict)
 
     # Remove these values from our dict
-    # sorted_dict.pop(0.0)
     # sorted_dict.pop(1.0)
+
+    #dict_list = list(sorted_dict)[-10]
+    for key in list(sorted_dict):
+        new = key.astype(str)
+        if len(new.rsplit('.')[-1]) > 2:
+            sorted_dict.pop(key)
+
+
+    #sorted_dict.pop(0.0)
 
     plt.bar(range(len(sorted_dict)), list(sorted_dict.values()), align='center')
     plt.xticks(range(len(sorted_dict)), list(sorted_dict.keys()))
+    plt.xlabel("Target.csv values")
+    plt.ylabel("Count")
+    plt.title("Target.csv output breakdown")
+
     plt.show()
 
 plot_true_outputs()
