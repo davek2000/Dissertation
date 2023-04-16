@@ -34,6 +34,12 @@ def load_sequences(file_ids,feature_file_name):
 public_data_path = 'data'
 
 feature_input_file_name = "columns_1000ms_all_inputs"
+# feature_input_file_name = "columns_1000ms_no_video"
+# feature_input_file_name = "columns_1000ms_no_pir"
+# feature_input_file_name = "columns_1000ms_no_acceleration"
+# feature_input_file_name = "columns_1000ms_acceleration_only"
+# feature_input_file_name = "columns_1000ms_pir_only"
+# feature_input_file_name = "columns_1000ms_video_only"
 # Load the training and testing data 
 train_x, train_y = load_sequences([1, 2, 3, 4, 5, 6, 7, 8],feature_input_file_name)
 test_x, test_y = load_sequences([9, 10],feature_input_file_name)
@@ -47,9 +53,9 @@ from sklearn.impute import SimpleImputer
 
 imputer = SimpleImputer(missing_values=np.nan, strategy='most_frequent')
 imputer.fit(train_x)
-
 train_x = imputer.transform(train_x)
 test_x = imputer.transform(test_x)
+
 print ("Check whether the train/test features are all finite (after imputation)")
 print ('All training data finite:', np.all(np.isfinite(train_x)))
 print ('All testing data finite:', np.all(np.isfinite(test_x)))
@@ -101,17 +107,17 @@ df = pd.DataFrame({
         'Prior Class Distribution': class_prior
     })
 
-df.set_index('Activity', inplace=True)
-# reset colour palette
-current_palette = cycle(sns.color_palette())
-df.plot(
-    kind='bar',
-    width=1.0,
-    subplots=True,
-    color=[next(current_palette), next(current_palette)], 
-    edgecolor='white',
-    linewidth=1
-)
+# df.set_index('Activity', inplace=True)
+# # reset colour palette
+# current_palette = cycle(sns.color_palette())
+# df.plot(
+#     kind='bar',
+#     width=1.0,
+#     subplots=True,
+#     color=[next(current_palette), next(current_palette)], 
+#     edgecolor='white',
+#     linewidth=1
+# )
 
 #plt.show()
 
@@ -123,10 +129,10 @@ num_lines = 0
 
 
 def brier_score(given, predicted, weight_vector): 
-        a = given-predicted
-        b = np.power(a,2.0)
-        c = b.dot(weight_vector)
-        print(c)
+        # a = given-predicted
+        # b = np.power(a,2.0)
+        # c = b.dot(weight_vector)
+        # print(c)
         return np.power(given - predicted, 2.0).dot(weight_vector).mean()
 
 def baseline():
@@ -293,7 +299,7 @@ def neural_network(learning_rate,batch_size,epochs,dropout_rate):
     from keras.layers import Dense
     from keras.layers import Dropout
     model = Sequential()
-    model.add(Dense(80, activation='relu',input_dim=366))
+    model.add(Dense(80, activation='relu',input_dim=train_x.shape[1]))
     model.add(Dropout(dropout_rate))
     #model.add(Dense(180, activation='relu'))
     #model.add(Dense(180, input_dim=366, activation='relu'))
@@ -344,23 +350,25 @@ def test_kNN():
     print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
     knn_brier_score = []
 
-    k_range = np.power(2, range(8))
-    # Hyper-param: k
-    for k in k_range:
-        print("k value: ",k)
-        knn_brier_score.append(knn_model(k_value=k))
+    # k_range = np.power(2, range(8))
+    # # Hyper-param: k
+    # for k in k_range:
+    #     print("k value: ",k)
+    #     knn_brier_score.append(knn_model(k_value=k))
 
-    # Hyper-param: p
-    k_range = ['1','2']
-    knn_brier_score.append(knn_model(k_value=32,p_value=1))
-    knn_brier_score.append(knn_model(k_value=32,p_value=2))
+    # # Hyper-param: p
+    # k_range = ['1','2']
+    # knn_brier_score.append(knn_model(k_value=32,p_value=1))
+    # knn_brier_score.append(knn_model(k_value=32,p_value=2))
 
-    # Plot hyper-param
-    plt.plot(k_range,knn_brier_score,label='Brier score WRT p')
-    plt.xticks(k_range)
-    plt.xlabel("p Value"); plt.ylabel("Brier Score")
-    plt.title("kNN Hyper-parameter tuning: p")
-    plt.show()
+    # # Plot hyper-param
+    # plt.plot(k_range,knn_brier_score,label='Brier score WRT p')
+    # plt.xticks(k_range)
+    # plt.xlabel("p Value"); plt.ylabel("Brier Score")
+    # plt.title("kNN Hyper-parameter tuning: p")
+    # plt.show()
+
+    knn_model(k_value=32,p_value=1)
     ###########################################################################################################
 
 def test_linear_regression():
@@ -374,60 +382,62 @@ def test_linear_regression():
 def test_random_forest():
     ###########################################################################################################
     # Random Forest Model
-    print("Random Forest Model:")
-    print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
-    brier_score_list = []
-    rf_timings = []
+    # print("Random Forest Model:")
+    # print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+    # brier_score_list = []
+    # rf_timings = []
 
-    # Hyper-parameter: n_estimators
-    n_estimators = [1,5,10,20,30,40,50,60,70]
-    for n_e in n_estimators:
-        start = time.time()  
-        brier_score_list.append(random_forest(n_estimators=n_e,max_depth=None,max_features=1.0))
-        stop = time.time()
-        rf_timings.append((stop-start))
-
-    plt.plot(n_estimators,rf_timings,label='Execution time WRT n_estimators')
-    plt.plot(n_estimators,brier_score_list)
-    plt.xticks(n_estimators); #plt.yticks([0.5,0.4,0.3,0.2,0.1,0])
-    plt.xlabel("n_estimators"); plt.ylabel("Time (seconds)")
-    plt.title("Random Forest Hyper-parameter tuning: n_estimators")
-    plt.show()
-
-    # Hyper-parameter: max_depth
-    max_depth_values = [10,20,30,40,50]
-    brier_score_list = []
-    rf_timings = []
-    # for depth_value in max_depth_values:
-    #     start = time.time()
-    #     brier_score_list.append(random_forest(n_estimators=10,max_depth=depth_value,max_features=1.0))
+    # # Hyper-parameter: n_estimators
+    # n_estimators = [1,5,10,20,30,40,50,60,70]
+    # for n_e in n_estimators:
+    #     start = time.time()  
+    #     brier_score_list.append(random_forest(n_estimators=n_e,max_depth=None,max_features=1.0))
     #     stop = time.time()
     #     rf_timings.append((stop-start))
 
-    #plt.plot(max_depth_values,rf_timings,label='Brier Score WRT max_depth')
-    plt.plot(max_depth_values,brier_score_list)
-    plt.xticks(max_depth_values); #plt.yticks([0.5,0.4,0.3,0.2,0.1,0])
-    plt.xlabel("max_depth"); plt.ylabel("Time (seconds)")
-    plt.title("Random Forest Hyper-parameter tuning: max_depth")
-    plt.show()
+    # plt.plot(n_estimators,rf_timings,label='Execution time WRT n_estimators')
+    # plt.plot(n_estimators,brier_score_list)
+    # plt.xticks(n_estimators); #plt.yticks([0.5,0.4,0.3,0.2,0.1,0])
+    # plt.xlabel("n_estimators"); plt.ylabel("Time (seconds)")
+    # plt.title("Random Forest Hyper-parameter tuning: n_estimators")
+    # plt.show()
 
-    # Hyper-parameter: max_features
-    max_features = ["sqrt", "log2", None]
-    brier_score_list = []
-    rf_timings = []
+    # # Hyper-parameter: max_depth
+    # max_depth_values = [10,20,30,40,50]
+    # brier_score_list = []
+    # rf_timings = []
+    # # for depth_value in max_depth_values:
+    # #     start = time.time()
+    # #     brier_score_list.append(random_forest(n_estimators=10,max_depth=depth_value,max_features=1.0))
+    # #     stop = time.time()
+    # #     rf_timings.append((stop-start))
 
-    for max_feature in max_features:
-        start = time.time()
-        brier_score_list.append(random_forest(n_estimators=10,max_depth=10,max_features=max_feature))
-        stop = time.time()
-        rf_timings.append((stop-start))
+    # #plt.plot(max_depth_values,rf_timings,label='Brier Score WRT max_depth')
+    # plt.plot(max_depth_values,brier_score_list)
+    # plt.xticks(max_depth_values); #plt.yticks([0.5,0.4,0.3,0.2,0.1,0])
+    # plt.xlabel("max_depth"); plt.ylabel("Time (seconds)")
+    # plt.title("Random Forest Hyper-parameter tuning: max_depth")
+    # plt.show()
 
-    #plt.plot(max_depth_values,rf_timings,label='Brier Score WRT max_depth')
-    plt.plot([0,1,2],brier_score_list)
-    plt.xticks(range(len(max_features)),['sqrt','log2','None'] ); #plt.yticks([0.5,0.4,0.3,0.2,0.1,0])
-    plt.xlabel("max_features"); plt.ylabel("Brier Score")
-    plt.title("Random Forest Hyper-parameter tuning: max_features")
-    plt.show()
+    # # Hyper-parameter: max_features
+    # max_features = ["sqrt", "log2", None]
+    # brier_score_list = []
+    # rf_timings = []
+
+    # for max_feature in max_features:
+    #     start = time.time()
+    #     brier_score_list.append(random_forest(n_estimators=10,max_depth=10,max_features=max_feature))
+    #     stop = time.time()
+    #     rf_timings.append((stop-start))
+
+    # #plt.plot(max_depth_values,rf_timings,label='Brier Score WRT max_depth')
+    # plt.plot([0,1,2],brier_score_list)
+    # plt.xticks(range(len(max_features)),['sqrt','log2','None'] ); #plt.yticks([0.5,0.4,0.3,0.2,0.1,0])
+    # plt.xlabel("max_features"); plt.ylabel("Brier Score")
+    # plt.title("Random Forest Hyper-parameter tuning: max_features")
+    # plt.show()
+
+    random_forest(n_estimators=10,max_depth=10,max_features="log2")
     ###########################################################################################################
 
 def test_neural_network():
@@ -494,31 +504,109 @@ def test_neural_network():
     # plt.show()
 
     # Hyper-parameter: Dropout-rate
-    brier_score_list = []
-    nn_timing=  []
+    # brier_score_list = []
+    # nn_timing=  []
 
-    dropout_rate = [0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8]
-    for dropout in dropout_rate:
-        start = time.time()
-        brier_score_list.append(neural_network(learning_rate=0.001,batch_size=64, epochs=20, dropout_rate=dropout))
-        stop = time.time()
-        nn_timing.append((stop-start))
+    # dropout_rate = [0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8]
+    # for dropout in dropout_rate:
+    #     start = time.time()
+    #     brier_score_list.append(neural_network(learning_rate=0.001,batch_size=64, epochs=20, dropout_rate=dropout))
+    #     stop = time.time()
+    #     nn_timing.append((stop-start))
 
-    plt.plot(range(len(dropout_rate)),nn_timing)
-    #plt.xticks(range(len(max_features)),['sqrt','log2','None'] ); #plt.yticks([0.5,0.4,0.3,0.2,0.1,0])
-    plt.xticks(range(len(dropout_rate)),dropout_rate)
-    #plt.yticks([0.3,0.25,0.2])
-    plt.xlabel("dropout_rate"); plt.ylabel("Time (seconds)")
-    plt.title("Neural Network Hyper-parameter tuning: dropout_rate")
-    plt.show()
+    # plt.plot(range(len(dropout_rate)),nn_timing)
+    # #plt.xticks(range(len(max_features)),['sqrt','log2','None'] ); #plt.yticks([0.5,0.4,0.3,0.2,0.1,0])
+    # plt.xticks(range(len(dropout_rate)),dropout_rate)
+    # #plt.yticks([0.3,0.25,0.2])
+    # plt.xlabel("dropout_rate"); plt.ylabel("Time (seconds)")
+    # plt.title("Neural Network Hyper-parameter tuning: dropout_rate")
+    # plt.show()
+
+    neural_network(learning_rate=0.001,batch_size=64,epochs=20,dropout_rate=0.4)
     ###########################################################################################################
 
 #test_neural_network()
 # given=[0.2,0.5,0.2]
-given = np.array([0.2,0.5,0.2])
-# predicted = [0.1,0.5,0.1]
-predicted = np.array([0.1,0.5,0.1])
+# given = np.array([0.2,0.5,0.2])
+# # predicted = [0.1,0.5,0.1]
+# predicted = np.array([0.1,0.5,0.1])
+# # weights = [1,1,1]
 # weights = [1,1,1]
-weights = [1,1,1]
-print(brier_score(given,predicted,weights))
-baseline()
+# print(brier_score(given,predicted,weights))
+# baseline()
+
+# print("Baseline:")
+# start = time.time()
+# test_baseline()
+# stop = time.time()
+# print("Duration: ",(stop-start))
+
+# print("Linear Regression")
+# start = time.time()
+# test_linear_regression()
+# stop = time.time()
+# print("Duration: ",(stop-start))
+
+# print("kNN")
+# start = time.time()
+# test_kNN()
+# stop = time.time()
+# print("Duration: ",(stop-start))
+
+# print("Random Forest")
+# start = time.time()
+# test_random_forest()
+# stop = time.time()
+# print("Duration: ",(stop-start))
+
+# print("Neural Network")
+# start = time.time()
+# test_neural_network()
+# stop = time.time()
+# print("Duration: ",(stop-start))
+
+def plot_results():
+    baseline_score = [0.2930, 0.2930, 0.2930, 0.2930, 0.2930, 0.2930, 0.2930]
+    lr_score = [0.2824, 0.2725, 0.2872, 0.2858, 0.2759, 0.2878, 0.2898]
+    knn_score = [0.2538, 0.2707, 0.2549, 0.2776, 0.2706, 0.3274, 0.2794]
+    rf_score = [0.2565, 0.2660, 0.26, 0.267, 0.2693, 0.2878, 0.2719]
+    nn_score = [0.2367, 0.2555, 0.2374, 0.2617, 0.2567, 0.2875, 0.2609]
+
+    baseline_time = [0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001]
+    lr_time = [5.62, 1.2748,4.28,4.41,0.57,0.81,2.99]
+    knn_time = [3.45, 1.083,5.61,3.06,0.64,0.98,2.50]
+    rf_time = [5.6, 5.0526,5.60,5.33,5.36,4.05,5.15]
+    nn_time = [6.63, 5.786,5.93,6.34,5.60,5.82,5.81]
+
+    feature_list = ["All inputs", "No video", "No PIR", "No acceleration", "Acceleration only", "PIR only", "Video only"]
+
+    # plt.plot(range(len(feature_list)),baseline_score)
+    # plt.plot(range(len(feature_list)),lr_score)
+    # plt.plot(range(len(feature_list)),knn_score)
+    # plt.plot(range(len(feature_list)),rf_score)
+    # plt.plot(range(len(feature_list)),nn_score)
+
+    # plt.plot(range(len(feature_list)),baseline_time)
+    # plt.plot(range(len(feature_list)),lr_time)
+    # plt.plot(range(len(feature_list)),knn_time)
+    # plt.plot(range(len(feature_list)),rf_time)
+    # plt.plot(range(len(feature_list)),nn_time)
+
+    plt.bar(0,baseline_time[0])
+    plt.bar(1,lr_time[0])
+    plt.bar(2,knn_time[0])
+    plt.bar(3,rf_time[0])
+    plt.bar(4,nn_time[0])
+
+    #plt.xticks(range(len(feature_list)),feature_list)
+    plt.xticks([0,1,2,3,4],["Baseline","Linear Regression", "kNN","Random Forest","Neural Network"])
+    plt.xlabel("Model")
+    plt.ylabel("Time (seconds)")
+    plt.title("Comparison of model performance using all available input features")
+    #plt.legend(["Baseline", "Linear Regression", "kNN", "Random Forest", "Neural Network"])
+
+
+    plt.show()
+
+plot_results()
+
