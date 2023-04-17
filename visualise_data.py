@@ -1,3 +1,6 @@
+# Original Source: https://github.com/IRC-SPHERE/sphere-challenge/blob/master/visualise_data.py
+# Modifications made to exclude certain modalities
+
 from __future__ import print_function
 
 from six import iteritems

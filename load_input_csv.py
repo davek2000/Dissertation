@@ -1,3 +1,4 @@
+# Original Source: https://github.com/IRC-SPHERE/sphere-challenge/blob/master/jupyter/sphere-baseline.ipynb
 import numpy as np
 import os
 from visualise_data import Sequence

@@ -72,10 +72,12 @@ def plot_true_outputs():
             sorted_dict.pop(key)
 
 
-    #sorted_dict.pop(0.0)
+    sorted_dict.pop(0.0)
 
+    plt.rc('font',size=20)
     plt.bar(range(len(sorted_dict)), list(sorted_dict.values()), align='center')
-    plt.xticks(range(len(sorted_dict)), list(sorted_dict.keys()))
+    plt.xticks(range(len(sorted_dict)), list(sorted_dict.keys()),size=20)
+    plt.yticks(size=20)
     plt.xlabel("Target.csv values")
     plt.ylabel("Count")
     plt.title("Target.csv output breakdown")

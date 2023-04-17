@@ -1,3 +1,5 @@
+# Original Source: https://github.com/IRC-SPHERE/sphere-challenge/blob/master/jupyter/sphere-baseline.ipynb
+
 import pandas as pd
 import numpy as np
 import sklearn
@@ -118,6 +120,7 @@ df = pd.DataFrame({
 #     edgecolor='white',
 #     linewidth=1
 # )
+plt.rc('font',size=18)
 
 #plt.show()
 
@@ -350,19 +353,27 @@ def test_kNN():
     print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
     knn_brier_score = []
 
-    # k_range = np.power(2, range(8))
-    # # Hyper-param: k
+    k_range = np.power(2, range(8))
+    # Hyper-param: k
     # for k in k_range:
     #     print("k value: ",k)
-    #     knn_brier_score.append(knn_model(k_value=k))
+    #     knn_brier_score.append(knn_model(k_value=k,p_value=2))
+
+    #     # # Plot hyper-param
+    # plt.plot(k_range,knn_brier_score,label='Brier score WRT k')
+    # plt.xticks(k_range)
+    # plt.xlabel("k Value"); plt.ylabel("Brier Score")
+    # plt.title("kNN Hyper-parameter tuning: k")
+    # plt.show()
 
     # # Hyper-param: p
     # k_range = ['1','2']
-    # knn_brier_score.append(knn_model(k_value=32,p_value=1))
-    # knn_brier_score.append(knn_model(k_value=32,p_value=2))
+    # knn_brier_score.append(knn_model(k_value=64,p_value=1))
+    # knn_brier_score.append(knn_model(k_value=64,p_value=2))
 
     # # Plot hyper-param
     # plt.plot(k_range,knn_brier_score,label='Brier score WRT p')
+    # # plt.bar(k_range,knn_brier_score,label='Brier score WRT p')
     # plt.xticks(k_range)
     # plt.xlabel("p Value"); plt.ylabel("Brier Score")
     # plt.title("kNN Hyper-parameter tuning: p")
@@ -370,6 +381,7 @@ def test_kNN():
 
     knn_model(k_value=32,p_value=1)
     ###########################################################################################################
+# test_kNN()
 
 def test_linear_regression():
     ##########################################################################################################
@@ -384,23 +396,23 @@ def test_random_forest():
     # Random Forest Model
     # print("Random Forest Model:")
     # print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
-    # brier_score_list = []
-    # rf_timings = []
+    brier_score_list = []
+    rf_timings = []
 
-    # # Hyper-parameter: n_estimators
-    # n_estimators = [1,5,10,20,30,40,50,60,70]
-    # for n_e in n_estimators:
-    #     start = time.time()  
-    #     brier_score_list.append(random_forest(n_estimators=n_e,max_depth=None,max_features=1.0))
-    #     stop = time.time()
-    #     rf_timings.append((stop-start))
+    # Hyper-parameter: n_estimators
+    n_estimators = [1,5,10,20,30,40,50,60,70]
+    for n_e in n_estimators:
+        start = time.time()  
+        brier_score_list.append(random_forest(n_estimators=n_e,max_depth=None,max_features=1.0))
+        stop = time.time()
+        rf_timings.append((stop-start))
 
-    # plt.plot(n_estimators,rf_timings,label='Execution time WRT n_estimators')
-    # plt.plot(n_estimators,brier_score_list)
-    # plt.xticks(n_estimators); #plt.yticks([0.5,0.4,0.3,0.2,0.1,0])
-    # plt.xlabel("n_estimators"); plt.ylabel("Time (seconds)")
-    # plt.title("Random Forest Hyper-parameter tuning: n_estimators")
-    # plt.show()
+    plt.plot(n_estimators,rf_timings,label='Execution time WRT n_estimators')
+    plt.plot(n_estimators,brier_score_list)
+    plt.xticks(n_estimators); #plt.yticks([0.5,0.4,0.3,0.2,0.1,0])
+    plt.xlabel("n_estimators"); plt.ylabel("Time (seconds)")
+    plt.title("Random Forest Hyper-parameter tuning: n_estimators")
+    plt.show()
 
     # # Hyper-parameter: max_depth
     # max_depth_values = [10,20,30,40,50]
@@ -439,6 +451,7 @@ def test_random_forest():
 
     random_forest(n_estimators=10,max_depth=10,max_features="log2")
     ###########################################################################################################
+test_random_forest()
 
 def test_neural_network():
     ###########################################################################################################
@@ -522,7 +535,7 @@ def test_neural_network():
     # plt.title("Neural Network Hyper-parameter tuning: dropout_rate")
     # plt.show()
 
-    neural_network(learning_rate=0.001,batch_size=64,epochs=20,dropout_rate=0.4)
+    neural_network(learning_rate=0.001,batch_size=64,epochs=20,dropout_rate=0.3)
     ###########################################################################################################
 
 #test_neural_network()
@@ -580,33 +593,29 @@ def plot_results():
 
     feature_list = ["All inputs", "No video", "No PIR", "No acceleration", "Acceleration only", "PIR only", "Video only"]
 
-    # plt.plot(range(len(feature_list)),baseline_score)
-    # plt.plot(range(len(feature_list)),lr_score)
-    # plt.plot(range(len(feature_list)),knn_score)
-    # plt.plot(range(len(feature_list)),rf_score)
-    # plt.plot(range(len(feature_list)),nn_score)
+    plt.rc('font',size=18)
 
-    # plt.plot(range(len(feature_list)),baseline_time)
-    # plt.plot(range(len(feature_list)),lr_time)
-    # plt.plot(range(len(feature_list)),knn_time)
-    # plt.plot(range(len(feature_list)),rf_time)
-    # plt.plot(range(len(feature_list)),nn_time)
+    plt.plot(range(len(feature_list)),baseline_score)
+    plt.plot(range(len(feature_list)),lr_score)
+    plt.plot(range(len(feature_list)),knn_score)
+    plt.plot(range(len(feature_list)),rf_score)
+    plt.plot(range(len(feature_list)),nn_score)
 
-    plt.bar(0,baseline_time[0])
-    plt.bar(1,lr_time[0])
-    plt.bar(2,knn_time[0])
-    plt.bar(3,rf_time[0])
-    plt.bar(4,nn_time[0])
+    # plt.bar(0,baseline_score[0])
+    # plt.bar(1,lr_score[0])
+    # plt.bar(2,knn_score[0])
+    # plt.bar(3,rf_score[0])
+    # plt.bar(4,nn_score[0])
 
-    #plt.xticks(range(len(feature_list)),feature_list)
-    plt.xticks([0,1,2,3,4],["Baseline","Linear Regression", "kNN","Random Forest","Neural Network"])
-    plt.xlabel("Model")
-    plt.ylabel("Time (seconds)")
-    plt.title("Comparison of model performance using all available input features")
-    #plt.legend(["Baseline", "Linear Regression", "kNN", "Random Forest", "Neural Network"])
+    plt.xticks(range(len(feature_list)),feature_list)
+    #plt.xticks([0,1,2,3,4],["Baseline","Linear Regression", "kNN","Random Forest","Neural Network"])
+    plt.xlabel("Subset of modalities used")
+    plt.ylabel("Brier Score")
+    plt.title("Comparison of model performance using subset available input features")
+    plt.legend(["Baseline", "Linear Regression", "kNN", "Random Forest", "Neural Network"],loc="upper right")
 
 
     plt.show()
 
-plot_results()
+#plot_results()
 
